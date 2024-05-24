@@ -1,0 +1,13 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background-image: url("https://static.vecteezy.com/system/resources/previews/000/691/499/non_2x/rock-paper-scissors-seamless-pattern-vector.png");
+  width: 100vw;
+  height: 100vh;
+  background-size: cover;
+  background-position: center;
+}
