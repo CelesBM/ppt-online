@@ -5,3 +5,4 @@ node_modules
 yarn.lock
 ./server/key.json
 /server/key.json
+*.js
