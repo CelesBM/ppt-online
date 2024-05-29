@@ -1,6 +1,5 @@
 import { Router } from "@vaadin/router";
 import { state } from "../../state";
-import * as e from "express";
 
 class Signin extends HTMLElement {
   shadow: ShadowRoot;
@@ -108,7 +107,6 @@ class Signin extends HTMLElement {
       e.preventDefault();
       const email = emailInput.value;
       const name = nameInput.value;
-
       // Verificar si los campos están vacíos
       if (email.trim() === "" || name.trim() === "") {
         errorEl.style.display = "block";
@@ -117,6 +115,9 @@ class Signin extends HTMLElement {
       errorEl.style.display = "none"; //en caso que al principio no lo completé, si luego lo completo no sigue apareciendo el .err
       console.log("Nombre:", name, "&&", "Email:", email);
       state.setEmailAndName(email, name);
+      state.createNewUser(() => {
+        Router.go("option-room");
+      });
     });
 
     this.shadow.appendChild(style);

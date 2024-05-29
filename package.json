@@ -1,7 +1,6 @@
 {
   "name": "ppt-online",
   "version": "1.0.0",
-  "main": "index.js",
   "license": "MIT",
   "dependencies": {
     "@types/node": "^20.12.12",
@@ -20,6 +19,7 @@
     "process": "^0.11.10"
   },
   "scripts": {
-    "dev-front": "parcel serve ./client/index.html"
+    "dev-front": "parcel serve ./client/index.html",
+    "dev": "nodemon --watch ./server/index.ts --exec ts-node ./server/index.ts"
   }
 }

@@ -14,21 +14,6 @@ admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
 });
 
-const db = admin.firestore();
+const firestore = admin.firestore();
 
-// console.log(db); hasta acá sigue funcionando
-
-const usersCollection = db.collection("users");
-
-//obtener mis documentos de la collection users:
-
-usersCollection
-  .get()
-  .then((snap) => {
-    snap.forEach((doc) => {
-      console.log(doc.id, ":", doc.data()); //esto devuelve: user (id columna 2) : {nombre: "prueba1", email: prueba1@gmail.com}
-    });
-  })
-  .catch((error) => {
-    console.log("Error:", error);
-  });
+export { firestore };

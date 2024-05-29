@@ -1,4 +1,5 @@
 import { Router } from "@vaadin/router";
+import { state } from "../../state";
 
 class Login extends HTMLElement {
   shadow: ShadowRoot;
@@ -14,7 +15,7 @@ class Login extends HTMLElement {
   render() {
     this.shadow.innerHTML = `
     <section>
-        <form>
+        <form class="form">
             <div class="container-name">
                 <label for="name">Nombre:</label>
                 <input type="name" id="name" name="name">
@@ -23,7 +24,8 @@ class Login extends HTMLElement {
                 <label for="email">Email:</label>
                 <input type="email" id="email" name="email">
             </div>
-            <button>Iniciar sesión</button>
+            <p class="err">* Debe completar ambos campos para continuar</p>
+            <button class="button">Iniciar sesión</button>
         </form>
     </section>
     `;
@@ -74,6 +76,13 @@ class Login extends HTMLElement {
         font-style: normal;
         font-size: 20px;
     }
+    .err{
+        display: none;
+        font-size: 14px;
+        color: red;
+        font-style: italic;
+        margin: 5px 0px;
+    }
     button{
         cursor: pointer;
         width: 300px;
@@ -87,6 +96,29 @@ class Login extends HTMLElement {
         background-color: #ffbb8d;
     }
     `;
+
+    const formEl = this.shadow.querySelector(".form") as HTMLFormElement;
+    const emailInput = formEl.querySelector("#email") as HTMLInputElement;
+    const nameInput = formEl.querySelector("#name") as HTMLInputElement;
+    const buttonEl = this.shadow.querySelector(".button") as HTMLButtonElement;
+    const errorEl = this.shadow.querySelector(".err") as HTMLDivElement;
+
+    buttonEl.addEventListener("click", (e) => {
+      e.preventDefault();
+      const email = emailInput.value;
+      const name = nameInput.value;
+      // Verificar si los campos están vacíos
+      if (email.trim() === "" || name.trim() === "") {
+        errorEl.style.display = "block";
+        return;
+      }
+      errorEl.style.display = "none"; //en caso que al principio no lo completé, si luego lo completo no sigue apareciendo el .err
+      console.log("Nombre:", name, "&&", "Email:", email);
+      state.setEmailAndName(email, name);
+      state.login(() => {
+        Router.go("option-room");
+      });
+    });
     this.shadow.appendChild(style);
   }
 }
