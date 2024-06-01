@@ -8,6 +8,8 @@ const state = {
     name: "",
     userId: "",
     messageError: "",
+    roomId: "",
+    ownerName: "",
   },
 
   listeners: [], //array de funciones
@@ -17,6 +19,7 @@ const state = {
     //última version del estado
   },
 
+  //Guardar el nombre y mail
   setEmailAndName(email: string, name: string) {
     const currentState = this.getState();
     currentState.email = email;
@@ -24,6 +27,7 @@ const state = {
     this.setState(currentState);
   },
 
+  //Crear un usuario nuevo
   createNewUser(callback) {
     const currentState = this.getState();
     if (currentState.email) {
@@ -47,6 +51,7 @@ const state = {
     }
   },
 
+  //Validar usuario existente
   login(callback) {
     const currentState = this.getState();
     if (currentState.email) {
@@ -57,25 +62,43 @@ const state = {
           email: currentState.email,
         }),
       })
-        .then((response) => {
-          return response.json();
+        .then((res) => {
+          return res.json();
+        })
+        .then((data) => {
+          console.log("data:", data);
+          currentState.userId = data.userId;
+          this.setState(currentState);
+          callback ? callback() : false;
+        })
+        .catch((err) => console.log(err));
+    }
+  },
+
+  //Crear una nueva sala
+  createNewRoom(callback?) {
+    const currentState = this.getState();
+    if (currentState.userId) {
+      fetch(API_BASE_URL + "/createRoom", {
+        method: "post",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          userId: currentState.userId,
+        }),
+      })
+        .then((res) => {
+          return res.json();
         })
         .then((data) => {
           if (callback) {
-            if (data.message === undefined || "") {
-              currentState.userId = data.id;
-              console.log("Login:", data);
-              this.setState(currentState);
-            } else {
-              console.log("Error:", data.message);
-              currentState.messageError = data.message;
-              this.setState(currentState);
-            }
+            currentState.roomId = data.roomId;
+            currentState.ownerName = data.ownerName;
+            this.setState(currentState);
             callback();
           }
         });
     } else {
-      console.log("Este usuario no existe en la base de datos");
+      console.log("UserId no existe");
     }
   },
 

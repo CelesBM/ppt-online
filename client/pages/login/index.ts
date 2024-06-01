@@ -43,7 +43,7 @@ class Login extends HTMLElement {
     form{
         background-color: #fff;
         box-shadow: 0px 0px 30px 5px rgba(255, 117, 20, 0.7);
-        width: 40%;
+        width: 50%;
         border-radius: 4px;
         padding: 50px;
         display: flex;
@@ -52,6 +52,16 @@ class Login extends HTMLElement {
         align-content: center;
         align-items: center;
         gap: 30px;
+    }
+    @media(min-width: 600px){
+      form{
+        width: 60%;
+      }
+    }
+    @media(min-width: 1020px){
+      form{
+        gap: 50px;
+      }
     }
     div{
         display: flex;
@@ -64,17 +74,34 @@ class Login extends HTMLElement {
         font-family: "Poppins", sans-serif;
         font-weight: bold;
         font-style: normal;
+        font-size: 20px;
+    }
+    @media(min-width: 720px){
+      label{
         font-size: 25px;
+      }
     }
     input{
-        width: 500px;
-        height: 50px;
+        width: 170px;
+        height: 30px;
         padding: 0px 20px;
         border-radius: 4px;
         font-family: "Poppins", sans-serif;
         font-weight: 300;
         font-style: normal;
-        font-size: 20px;
+        font-size: 15px;
+    }
+    @media(min-width: 600px){
+      input{
+        width: 250px;
+        height: 35px;
+      }
+    }
+    @media(min-width: 1020px){
+      input{
+        width: 600px;
+        height: 50px;
+      }
     }
     .err{
         display: none;
@@ -85,15 +112,28 @@ class Login extends HTMLElement {
     }
     button{
         cursor: pointer;
-        width: 300px;
-        height: 50px;
+        width: 180px;
+        height: 40px;
         border-radius: 4px;
         border-color: #ff7514;
         font-family: "Poppins", sans-serif;
         font-weight: bold;
         font-style: normal;
-        font-size: 20px;
+        font-size: 17px;
         background-color: #ffbb8d;
+    }
+    @media(min-width: 600px){
+      button{
+        width: 250px;
+        height: 45px;
+      }
+    }
+    @media(min-width: 720px){
+      button{
+        width: 300px;
+        height: 50px;       
+        font-size: 20px;
+      }
     }
     `;
 

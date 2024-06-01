@@ -12,8 +12,10 @@ const serviceAccount = require(path.resolve(
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
+  databaseURL: "https://ppt-online-4275c-default-rtdb.firebaseio.com", // URL base de datos rtdb
 });
 
 const firestore = admin.firestore();
+const rtdb = admin.database();
 
-export { firestore };
+export { firestore, rtdb };

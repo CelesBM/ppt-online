@@ -48,12 +48,33 @@ class Home extends HTMLElement {
         font-family: "Luckiest Guy", cursive;
         font-weight: 400;
         font-style: normal;  
-        font-size: 80px; 
+        font-size: 50px; 
         background-color: #fff;
         box-shadow: 0px 0px 30px 5px rgba(255, 117, 20, 0.7);
-        width: 500px;
+        width: 250px;
         border-radius: 4px;
+        padding: 50px 20px;
+    }
+    @media(min-width:500px){
+      h1{  
+        font-size: 60px; 
+        width: 300px;
+        padding: 40px 35px;
+      }
+    }
+    @media(min-width:720px){
+      h1{        
+        font-size: 80px; 
+        width: 500px;
         padding: 25px 50px;
+      }
+    }
+    @media(min-width:1020px){
+      h1{        
+        font-size: 90px; 
+        width: 580px;
+        padding: 25px 70px;
+      }
     }
     .container-button{
         display: flex;
@@ -61,11 +82,27 @@ class Home extends HTMLElement {
         justify-content: center;
         align-content: center;
         align-items: center;
+        margin-top: 70px;
         gap: 20px;
+    }
+    @media(min-width:500px){
+      .container-button{  
+        margin-top: 50px;
+      }
+    }
+    @media(min-width:720px){
+      .container-button{  
+        margin-top: 20px;
+      }
+    }
+    @media(min-width:1020px){
+      .container-button{  
+        margin-top: -20px;
+      }
     }
     button{
         cursor: pointer;
-        width: 300px;
+        width: 250px;
         height: 50px;
         border-radius: 4px;
         border-color: #ff7514;
@@ -74,6 +111,23 @@ class Home extends HTMLElement {
         font-style: normal;
         font-size: 20px;
         background-color: #ffbb8d;
+    }
+    @media(min-width:500px){
+      button{  
+        width: 280px;
+      }
+    }
+    @media(min-width:720px){
+      button{  
+        width: 300px;
+      }
+    }
+    @media(min-width:720px){
+      button{  
+        font-size: 25px;
+        width: 500px;
+        height: 70px;
+      }
     }
     `;
     this.shadow.appendChild(style);

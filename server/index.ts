@@ -1,8 +1,8 @@
 import * as express from "express";
 import * as cors from "cors";
 import * as path from "path";
-import { firestore } from "./db";
-import { messaging } from "firebase-admin";
+import { firestore, rtdb } from "./db";
+import { v4 as uuidv4 } from "uuid";
 
 const PORT = 3002;
 const app = express();
@@ -10,6 +10,7 @@ app.use(express.json());
 app.use(cors());
 
 const userCollection = firestore.collection("users");
+const roomCollection = firestore.collection("rooms");
 
 //Endpoint para registrar nuevos usuarios. Devuelve el id del nuevo user.
 
@@ -21,6 +22,16 @@ app.post("/signin", (req, res) => {
     res.status(400).json({ message: "El nombre es obligatorio" });
     return;
   }
+
+  userCollection
+    .where("email", "==", email)
+    .get()
+    .then((searchResponse) => {
+      if (!searchResponse.empty) {
+        res.status(400).json({ message: "El mail ya existe" });
+        return;
+      }
+    });
 
   userCollection
     .where("email", "==", email)
@@ -61,6 +72,77 @@ app.post("/login", (req, res) => {
         res.json({ userId: response.docs[0].id });
       }
     });
+});
+
+//Endpoint para generar una nueva sala.
+app.post("/createRoom", (req, res) => {
+  const userId = req.body.userId;
+  const roomName = "currentGame";
+
+  userCollection
+    .doc(userId)
+    .get()
+    .then((doc) => {
+      if (doc.exists) {
+        const userData = doc.data();
+        const longId = uuidv4();
+        const roomRef = rtdb.ref("/rooms" + longId + "/" + roomName);
+        roomRef.set({ owner: userId }).then(() => {
+          const shortId = 1000 + Math.floor(Math.random() * 999);
+          roomCollection
+            .doc(shortId.toString())
+            .set({
+              rtdbId: longId,
+              ownerName: userData.name,
+              results: {
+                player1: 0,
+                player2: 0,
+              },
+            })
+            .then(() => {
+              res.json({
+                roomId: shortId,
+                ownerName: userData.name,
+              });
+            });
+        });
+      }
+    });
+});
+
+//Endpoint para obtener sala por id.
+app.get("/rooms/:roomId", (req, res) => {
+  const userId = req.query.userId;
+  const roomId = req.params.roomId;
+
+  if (userId !== undefined) {
+    userCollection
+      .doc(userId.toString())
+      .get()
+      .then((doc) => {
+        if (doc.exists) {
+          roomCollection
+            .doc(roomId)
+            .get()
+            .then((snap) => {
+              if (snap.exists) {
+                const roomData = snap.data();
+                const userData = doc.data();
+                roomData.name = userData.name;
+                res.json(roomData);
+              } else {
+                res.status(401).json({
+                  message: "No existe la sala",
+                });
+              }
+            });
+        } else {
+          res.status(401).json({
+            message: "No existe la data del user",
+          });
+        }
+      });
+  }
 });
 
 app.use(express.static("dist"));
