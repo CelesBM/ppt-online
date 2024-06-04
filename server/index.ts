@@ -145,6 +145,28 @@ app.get("/rooms/:roomId", (req, res) => {
   }
 });
 
+//Endpoint para pushear jugada.
+app.post("/game", (req, res) => {
+  const userId = req.body.userId;
+  const realtimeId = req.body.realtimeId;
+  const roomName = "currentGame";
+  const roomRef = rtdb.ref("rooms/" + realtimeId + "/" + roomName);
+  roomRef.once("value").then((snapshot) => {
+    roomRef
+      .child(userId)
+      .transaction((data) => {
+        if (snapshot.numChildren() >= 3) {
+          return data ? { ...data, ...req.body } : data;
+        } else {
+          return data || req.body;
+        }
+      })
+      .then(() => {
+        res.json("ok");
+      });
+  });
+});
+
 app.use(express.static("dist"));
 
 app.get("*", (req, res) => {

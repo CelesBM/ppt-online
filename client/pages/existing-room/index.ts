@@ -1,7 +1,7 @@
 import { Router } from "@vaadin/router";
 import { state } from "../../state";
 
-class NewRoom extends HTMLElement {
+class ExistingRoom extends HTMLElement {
   shadow: ShadowRoot;
   constructor() {
     super();
@@ -17,10 +17,12 @@ class NewRoom extends HTMLElement {
     this.shadow.innerHTML = `   
     <section>
         <h2>¡ Bienvenido/a, </br>${currentState.name} !</h2>
-        <p>Se te ha asignado la sala ${currentState.roomId} </br> Comparte el código con tu contrincante </p>
-        <div class="container-button">
-            <button class="button">Ingresar a la sala</button>
+        <p>Ingrese el código de sala</p>
+        <input type="text" id="roomId" name="roomId">
+        <div class="container-err">
+            <h5 class="err">* Esta sala no existe.</h5>
         </div>
+        <button class="button">Ingresar a la sala</button>
     </section>
     `;
 
@@ -98,6 +100,40 @@ class NewRoom extends HTMLElement {
         line-height: 50px;
       }
     }
+    input{
+        width: 170px;
+        height: 30px;
+        padding: 0px 20px;
+        border-radius: 4px;
+        font-family: "Poppins", sans-serif;
+        font-weight: 300;
+        font-style: normal;
+        font-size: 15px;
+        text-align: center;
+    }
+    @media(min-width: 600px){
+      input{
+        width: 250px;
+        height: 35px;
+      }
+    }
+    @media(min-width: 1020px){
+      input{
+        width: 600px;
+        height: 50px;
+        margin-bottom: 50px;
+      }
+    }
+    .err{
+        display: none;
+        font-size: 14px;
+        color: red;
+        font-style: italic;
+        margin: 5px 0px;
+        background-color: #fff;
+        padding: 5px;
+        border-radius: 4px;
+    }
     button{
         cursor: pointer;
         width: 250px;
@@ -127,12 +163,23 @@ class NewRoom extends HTMLElement {
     `;
 
     const buttonEl = this.shadow.querySelector(".button") as HTMLButtonElement;
+    const codeInput = this.shadow.querySelector("#roomId") as HTMLInputElement;
+    const errorEl = this.querySelector(".container-err") as HTMLDivElement;
 
     buttonEl.addEventListener("click", (e) => {
       e.preventDefault();
+      const inputValue = codeInput.value;
+      const currentState = state.getState();
+      currentState.roomId = inputValue;
+      state.setState(currentState);
       state.getRoom(() => {
-        state.gamePush();
-        Router.go("/instructions");
+        const currenState = state.getState();
+        if (currenState.messageError === "" || undefined) {
+          state.gamePush();
+          Router.go("/instructions");
+        } else {
+          errorEl.style.display = "block";
+        }
       });
     });
 
@@ -140,4 +187,4 @@ class NewRoom extends HTMLElement {
   }
 }
 
-customElements.define("new-room-comp", NewRoom);
+customElements.define("existing-room-comp", ExistingRoom);

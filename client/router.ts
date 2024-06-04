@@ -7,4 +7,6 @@ router.setRoutes([
   { path: "/signin", component: "signin-comp" },
   { path: "/option-room", component: "rooms-comp" },
   { path: "/new-room", component: "new-room-comp" },
+  { path: "/existing-room", component: "existing-room-comp" },
+  { path: "/instructions", component: "instructions-comp" },
 ]);

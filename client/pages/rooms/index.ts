@@ -135,6 +135,7 @@ button{
 
     buttonOldEl.addEventListener("click", (e) => {
       e.preventDefault();
+      Router.go("/existing-room");
     });
 
     this.shadow.appendChild(style);
