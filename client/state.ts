@@ -1,6 +1,6 @@
-import { database } from "firebase-admin";
 import { ref, onValue } from "firebase/database";
 import { rtdb } from "../server/rtdb";
+//import { Router } from "@vaadin/router";
 
 const API_BASE_URL = "http://localhost:3002";
 
@@ -21,6 +21,7 @@ const state = {
     choice: "",
     online: "",
     start: "",
+    playersReady: 0,
   },
 
   listeners: [], //array de funciones
@@ -126,7 +127,7 @@ const state = {
           if (data.message === undefined || "") {
             currenState.rtdbId = data.rtdbId;
             currenState.ownerName = data.ownerName;
-            currenState.rivalName = data.rivalName;
+            currenState.rivalName = data.name;
             currenState.player1 = data.results.player1;
             currenState.player2 = data.results.player2;
             console.log("Data sala getRoom:", data);
@@ -141,10 +142,11 @@ const state = {
       });
   },
 
-  //Enviar juego
   gamePush() {
     const currentState = this.getState();
     const currentName = this.data.name;
+    currentState.online = true;
+    currentState.start = true;
     fetch(API_BASE_URL + "/game", {
       method: "post",
       headers: {
@@ -162,15 +164,28 @@ const state = {
     });
   },
 
+  //VER DE HACERLO SIN EL ROUTER AHI
+  /* incrementPlayersReady() {
+    const currentState = this.getState();
+    currentState.playersReady++;
+    if (currentState.playersReady === 2) {
+      //Router.go("game");
+    }
+    this.setState(currentState);
+  },*/
+
+  //  CREO QUE NO NECESITO MAS ESTA FUNCION
   dataRolPlayers(callback) {
     const currenState = this.getState();
     const roomRef = ref(rtdb, "rooms/" + currenState.rtdbId + "currentGame");
     onValue(roomRef, (snapshot) => {
       if (callback) {
         const value = snapshot.val();
-        currenState.rtdbData = value;
-        this.setState(currenState);
-        callback();
+        if (value !== null) {
+          currenState.rtdbData = value;
+          this.setState(currenState);
+          callback();
+        }
       }
     });
   },

@@ -4,6 +4,7 @@ import map from "lodash/map";
 
 class Instructions extends HTMLElement {
   shadow: ShadowRoot;
+
   constructor() {
     super();
     this.shadow = this.attachShadow({ mode: "open" });
@@ -11,31 +12,21 @@ class Instructions extends HTMLElement {
 
   connectedCallback() {
     this.render();
-    this.playerRol();
   }
 
-  playerRol() {
-    state.dataRolPlayers(() => {
-      const currentState = state.getState();
-      const data = currentState.rtdbData;
-
-      // Verificar si hay datos antes de intentar acceder a ellos
-      if (data && Object.keys(data).length > 0) {
-        const iteratedData = map(data);
-        console.log("iteratedData es:", iteratedData[0]);
-
-        if (currentState.ownerName !== iteratedData[1].name) {
-          currentState.rivalName = iteratedData[1].name;
-          currentState.rivalName =
-            currentState.rivalName !== undefined ? currentState.rivalName : "";
-        } else {
-          currentState.rivalName = iteratedData[0].name;
-        }
-      } else {
-        console.log("No hay datos disponibles aún.");
-      }
-      this.render();
-    });
+  incrementPlayersReady() {
+    const currentState = state.getState();
+    currentState.playersReady++;
+    if (
+      currentState.playersReady === 2 &&
+      currentState.online &&
+      currentState.start &&
+      currentState.name &&
+      currentState.rivalName
+    ) {
+      Router.go("/game");
+    }
+    state.setState(currentState);
   }
 
   render() {
@@ -191,30 +182,18 @@ class Instructions extends HTMLElement {
     `;
 
     const buttonEl = this.shadow.querySelector(".button") as HTMLButtonElement;
-    const onlineEl = this.querySelector(".wait-online") as HTMLDivElement;
+    const onlineEl = this.shadow.querySelector(
+      ".wait-online"
+    ) as HTMLDivElement;
 
     buttonEl.addEventListener("click", (e) => {
       e.preventDefault();
       onlineEl.style.display = "block";
-      const currenState = state.getState();
-      currenState.online = true;
-      currenState.start = true;
-      state.setState(currenState);
+      const currentState = state.getState();
+      state.setState(currentState);
+      this.incrementPlayersReady();
       state.gamePush();
-      state.dataRolPlayers(() => {
-        const currentState = state.getState();
-        const data = currentState.rtdbData;
-        const iteratedData = map(data);
-        if (iteratedData[0].start === true && iteratedData[1].start === true) {
-          console.log("FUNCIONA EL ONLINE Y START");
-          //onlineEl.remove();
-          //Router.go("/game");
-        } else {
-          console.log("NO FUNCIONA EL ONLINE Y START");
-        }
-      });
     });
-
     this.shadow.appendChild(style);
   }
 }

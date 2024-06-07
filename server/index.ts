@@ -146,7 +146,7 @@ app.get("/rooms/:roomId", (req, res) => {
 });
 
 //Endpoint para pushear jugada.
-app.post("/game", (req, res) => {
+/*app.post("/game", (req, res) => {
   const userId = req.body.userId;
   const realtimeId = req.body.realtimeId;
   const roomName = "currentGame";
@@ -165,6 +165,25 @@ app.post("/game", (req, res) => {
         res.json("ok");
       });
   });
+});
+*/
+
+app.post("/game", (req, res) => {
+  const userId = req.body.userId;
+  const realtimeId = req.body.realtimeId;
+  const roomName = "currentGame";
+  const { online, start } = req.body;
+
+  const roomRef = rtdb.ref("rooms/" + realtimeId + "/" + roomName);
+  roomRef
+    .update({ [userId + "/online"]: online, [userId + "/start"]: start }) // Actualiza el estado online para el usuario específico
+    .then(() => {
+      res.json("ok");
+    })
+    .catch((error) => {
+      console.error("Error al actualizar estado online:", error);
+      res.status(500).json({ message: "Error interno del servidor" });
+    });
 });
 
 app.use(express.static("dist"));

@@ -9,4 +9,5 @@ router.setRoutes([
   { path: "/new-room", component: "new-room-comp" },
   { path: "/existing-room", component: "existing-room-comp" },
   { path: "/instructions", component: "instructions-comp" },
+  { path: "/game", component: "game-comp" },
 ]);
