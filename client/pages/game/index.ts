@@ -93,7 +93,7 @@ class Game extends HTMLElement {
       height: 150px;
     }
     @media(min-width:600px){
-      img-rival{
+      .img-rival{
         width: 90px;
         height: 180px;
       }

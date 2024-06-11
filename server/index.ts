@@ -4,7 +4,7 @@ import * as path from "path";
 import { firestore, rtdb } from "./db";
 import { v4 as uuidv4 } from "uuid";
 
-const PORT = 3002;
+const PORT = 3004;
 const app = express();
 app.use(express.json());
 app.use(cors());
@@ -163,54 +163,6 @@ app.post("/joinRoom", (req, res) => {
 });
 
 //Endpoint para obtener sala por id.
-/*app.get("/rooms/:roomId", (req, res) => {
-  const userId = req.query.userId;
-  const roomId = req.params.roomId;
-
-  if (userId !== undefined) {
-    userCollection
-      .doc(userId.toString())
-      .get()
-      .then((doc) => {
-        if (doc.exists) {
-          roomCollection
-            .doc(roomId)
-            .get()
-            .then((snap) => {
-              if (snap.exists) {
-                const roomData = snap.data();
-                const userData = doc.data();
-                roomData.name = userData.name;
-                res.json(roomData);
-              } else {
-                res.status(401).json({
-                  message: "No existe la sala",
-                });
-              }
-            });
-        } else {
-          res.status(401).json({
-            message: "No existe la data del user",
-          });
-        }
-      });
-  }
-
-
-  roomCollection.doc(roomId).get().then((snap)=>{
-    if(snap.exists){
-      const roomData = snap.data();
-      const userData = doc.data();
-      const rivalName = ""; // obtener el nombre del rival de alguna manera
-      roomData.name = userData.name;
-      res.json({ ...roomData, rivalName });
-    } else{
-      res.status(401).json({
-        message: "No existe la sala",
-      })
-    }
-  })
-});*/
 
 app.get("/rooms/:roomId", (req, res) => {
   const userId = req.query.userId;
@@ -245,28 +197,6 @@ app.get("/rooms/:roomId", (req, res) => {
       });
   }
 });
-//Endpoint para pushear jugada.
-/*app.post("/game", (req, res) => {
-  const userId = req.body.userId;
-  const realtimeId = req.body.realtimeId;
-  const roomName = "currentGame";
-  const roomRef = rtdb.ref("rooms/" + realtimeId + "/" + roomName);
-  roomRef.once("value").then((snapshot) => {
-    roomRef
-      .child(userId)
-      .transaction((data) => {
-        if (snapshot.numChildren() >= 3) {
-          return data ? { ...data, ...req.body } : data;
-        } else {
-          return data || req.body;
-        }
-      })
-      .then(() => {
-        res.json("ok");
-      });
-  });
-});
-*/
 
 app.post("/game", (req, res) => {
   const userId = req.body.userId;

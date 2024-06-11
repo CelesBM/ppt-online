@@ -1,8 +1,7 @@
 import { ref, onValue } from "firebase/database";
 import { rtdb } from "../server/rtdb";
-//import { Router } from "@vaadin/router";
 
-const API_BASE_URL = "http://localhost:3002";
+const API_BASE_URL = "http://localhost:3004";
 
 const state = {
   data: {
@@ -106,7 +105,7 @@ const state = {
             currentState.roomId = data.roomId;
             currentState.ownerName = data.ownerName;
             this.setState(currentState);
-            this.listenRoom();
+            //this.listenRoom();
             callback();
           }
         });
@@ -115,12 +114,14 @@ const state = {
     }
   },
 
+  //Leer rtdb
   listenRoom() {
     const currentState = this.getState();
     const roomRef = ref(rtdb, "/rooms/" + currentState.rtdbId);
     onValue(roomRef, (snapShot) => {
       const data = snapShot.val();
-      currentState.rtdbData = data[currentState.rtdbId];
+      currentState.rtdbData = data;
+      //currentState.rtdbData = data[currentState.rtdbId];
       console.log("State desde el listen room", currentState);
       state.setState(currentState);
     });
@@ -164,7 +165,10 @@ const state = {
   getRoom(callback?) {
     const currentState = this.getState();
     const room = currentState.roomId;
-    fetch(API_BASE_URL + "/rooms/" + room + "?userId=" + currentState.userId)
+    fetch(API_BASE_URL + "/rooms/" + room + "?userId=" + currentState.userId, {
+      method: "get",
+      headers: { "content-type": "application/json" },
+    })
       .then((res) => {
         return res.json();
       })
@@ -185,6 +189,7 @@ const state = {
             }
             console.log("Data sala getRoom:", data);
             this.setState(currentState);
+            this.listenRoom();
           } else {
             currentState.messageError = data.message;
             console.log("Data error getRoom", data.message);
@@ -208,14 +213,14 @@ const state = {
         online: currentState.online,
         start: currentState.start,
       }),
+    }).then((res) => {
+      return res.json();
     });
   },
 
   gamePush() {
     const currentState = this.getState();
     const currentName = currentState.name;
-    //currentState.online = true;
-    //currentState.start = true;
     fetch(API_BASE_URL + "/game", {
       method: "post",
       headers: {
@@ -244,7 +249,7 @@ const state = {
     for (const callback of this.listeners) {
       callback();
     }
-    console.log("Soy el state y he cambiado:", this.data);
+    console.log("Soy el setState:", this.data);
   },
 };
 
