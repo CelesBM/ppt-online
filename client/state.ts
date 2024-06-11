@@ -106,6 +106,7 @@ const state = {
             currentState.roomId = data.roomId;
             currentState.ownerName = data.ownerName;
             this.setState(currentState);
+            this.listenRoom();
             callback();
           }
         });
@@ -114,39 +115,107 @@ const state = {
     }
   },
 
+  listenRoom() {
+    const currentState = this.getState();
+    const roomRef = ref(rtdb, "/rooms/" + currentState.rtdbId);
+    onValue(roomRef, (snapShot) => {
+      const data = snapShot.val();
+      currentState.rtdbData = data[currentState.rtdbId];
+      console.log("State desde el listen room", currentState);
+      state.setState(currentState);
+    });
+  },
+
+  //Asociar rival
+  joinRoom(roomId) {
+    const currentState = this.getState();
+    const userId = currentState.userId;
+
+    if (!userId) {
+      console.log("User ID no existe");
+      return;
+    }
+
+    fetch(API_BASE_URL + "/joinRoom", {
+      method: "post",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        userId: userId,
+        roomId: roomId,
+      }),
+    })
+      .then((res) => {
+        return res.json();
+      })
+      .then((data) => {
+        console.log("Data de joinRoom:", data);
+        if (data.message === "Rival asociado correctamente") {
+          // Actualizar el estado con el nombre del rival
+          currentState.rivalName = currentState.name;
+          this.setState(currentState);
+        }
+      })
+      .catch((error) => {
+        console.error("Error al unirse como rival:", error);
+      });
+  },
+
   //Acceder a una sala existente
   getRoom(callback?) {
-    const currenState = this.getState();
-    const room = currenState.roomId;
-    fetch(API_BASE_URL + "/rooms/" + room + "?userId=" + currenState.userId)
+    const currentState = this.getState();
+    const room = currentState.roomId;
+    fetch(API_BASE_URL + "/rooms/" + room + "?userId=" + currentState.userId)
       .then((res) => {
         return res.json();
       })
       .then((data) => {
         if (callback) {
           if (data.message === undefined || "") {
-            currenState.rtdbId = data.rtdbId;
-            currenState.ownerName = data.ownerName;
-            currenState.rivalName = data.name;
-            currenState.player1 = data.results.player1;
-            currenState.player2 = data.results.player2;
+            currentState.rtdbId = data.rtdbId;
+            currentState.ownerName = data.ownerName;
+            currentState.player1 = data.results.player1;
+            currentState.player2 = data.results.player2;
+            if (
+              data.rivalName === "" &&
+              currentState.name !== currentState.ownerName
+            ) {
+              currentState.rivalName = currentState.name;
+            } else if (data.rivalName !== "") {
+              currentState.rivalName = data.rivalName;
+            }
             console.log("Data sala getRoom:", data);
-            this.setState(currenState);
+            this.setState(currentState);
           } else {
-            currenState.messageError = data.message;
+            currentState.messageError = data.message;
             console.log("Data error getRoom", data.message);
-            this.setState(currenState);
+            this.setState(currentState);
           }
           callback();
         }
       });
   },
 
-  gamePush() {
+  playerOnline() {
     const currentState = this.getState();
-    const currentName = this.data.name;
     currentState.online = true;
     currentState.start = true;
+    fetch(API_BASE_URL + "/game", {
+      method: "post",
+      headers: {
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({
+        online: currentState.online,
+        start: currentState.start,
+      }),
+    });
+  },
+
+  gamePush() {
+    const currentState = this.getState();
+    const currentName = currentState.name;
+    //currentState.online = true;
+    //currentState.start = true;
     fetch(API_BASE_URL + "/game", {
       method: "post",
       headers: {
@@ -158,35 +227,10 @@ const state = {
         result: currentState.result,
         choice: currentState.choice,
         name: currentName,
+        rivalName: currentState.rivalName, // Enviar el nombre del rival al servidor
         online: currentState.online,
         start: currentState.start,
       }),
-    });
-  },
-
-  //VER DE HACERLO SIN EL ROUTER AHI
-  /* incrementPlayersReady() {
-    const currentState = this.getState();
-    currentState.playersReady++;
-    if (currentState.playersReady === 2) {
-      //Router.go("game");
-    }
-    this.setState(currentState);
-  },*/
-
-  //  CREO QUE NO NECESITO MAS ESTA FUNCION
-  dataRolPlayers(callback) {
-    const currenState = this.getState();
-    const roomRef = ref(rtdb, "rooms/" + currenState.rtdbId + "currentGame");
-    onValue(roomRef, (snapshot) => {
-      if (callback) {
-        const value = snapshot.val();
-        if (value !== null) {
-          currenState.rtdbData = value;
-          this.setState(currenState);
-          callback();
-        }
-      }
     });
   },
 

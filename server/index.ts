@@ -13,7 +13,6 @@ const userCollection = firestore.collection("users");
 const roomCollection = firestore.collection("rooms");
 
 //Endpoint para registrar nuevos usuarios. Devuelve el id del nuevo user.
-
 app.post("/signin", (req, res) => {
   const email = req.body.email;
   const name = req.body.name;
@@ -50,10 +49,6 @@ app.post("/signin", (req, res) => {
       } else {
         res.status(200).json({ id: searchResponse.docs[0].id });
       }
-    })
-    .catch((error) => {
-      console.error("Error al buscar usuario:", error);
-      res.status(500).json({ message: "Error interno del servidor" });
     });
 });
 
@@ -94,6 +89,7 @@ app.post("/createRoom", (req, res) => {
             .set({
               rtdbId: longId,
               ownerName: userData.name,
+              rivalName: "", // Inicialmente no hay rival
               results: {
                 player1: 0,
                 player2: 0,
@@ -110,7 +106,112 @@ app.post("/createRoom", (req, res) => {
     });
 });
 
+//Endpoint para unirse a una sala existente.
+app.post("/joinRoom", (req, res) => {
+  const userId = req.body.userId;
+  const roomId = req.body.roomId;
+  const roomName = "currentGame";
+
+  userCollection
+    .doc(userId)
+    .get()
+    .then((doc) => {
+      if (doc.exists) {
+        const userData = doc.data(); //Aca tengo los datos del usuario
+        const userDataName = userData.name; //nombre del user
+
+        roomCollection
+          .doc(roomId)
+          .get()
+          .then((roomSnap) => {
+            if (roomSnap.exists) {
+              const roomData = roomSnap.data();
+              if (
+                roomData.rival === "" &&
+                roomData.ownerName !== userDataName
+              ) {
+                roomCollection
+                  .doc(roomId)
+                  .update({
+                    rival: userId,
+                    rivalName: userData.name,
+                  })
+                  .then(() => {
+                    res.json({ message: "Rival asociado correctamente" });
+                  })
+                  .catch((error) => {
+                    console.error("Error al unirse como rival:", error);
+                    res
+                      .status(500)
+                      .json({ message: "Error interno del servidor" });
+                  });
+              } else {
+                res.status(400).json({ message: "La sala ya está llena" });
+              }
+            } else {
+              res.status(401).json({
+                message: "No existe la sala",
+              });
+            }
+          });
+      } else {
+        res.status(401).json({
+          message: "No existe la data del usuario",
+        });
+      }
+    });
+});
+
 //Endpoint para obtener sala por id.
+/*app.get("/rooms/:roomId", (req, res) => {
+  const userId = req.query.userId;
+  const roomId = req.params.roomId;
+
+  if (userId !== undefined) {
+    userCollection
+      .doc(userId.toString())
+      .get()
+      .then((doc) => {
+        if (doc.exists) {
+          roomCollection
+            .doc(roomId)
+            .get()
+            .then((snap) => {
+              if (snap.exists) {
+                const roomData = snap.data();
+                const userData = doc.data();
+                roomData.name = userData.name;
+                res.json(roomData);
+              } else {
+                res.status(401).json({
+                  message: "No existe la sala",
+                });
+              }
+            });
+        } else {
+          res.status(401).json({
+            message: "No existe la data del user",
+          });
+        }
+      });
+  }
+
+
+  roomCollection.doc(roomId).get().then((snap)=>{
+    if(snap.exists){
+      const roomData = snap.data();
+      const userData = doc.data();
+      const rivalName = ""; // obtener el nombre del rival de alguna manera
+      roomData.name = userData.name;
+      res.json({ ...roomData, rivalName });
+    } else{
+      res.status(401).json({
+        message: "No existe la sala",
+      })
+    }
+  })
+});*/
+
 app.get("/rooms/:roomId", (req, res) => {
   const userId = req.query.userId;
   const roomId = req.params.roomId;
@@ -144,7 +245,6 @@ app.get("/rooms/:roomId", (req, res) => {
       });
   }
 });
-
 //Endpoint para pushear jugada.
 /*app.post("/game", (req, res) => {
   const userId = req.body.userId;
@@ -171,12 +271,13 @@ app.get("/rooms/:roomId", (req, res) => {
 app.post("/game", (req, res) => {
   const userId = req.body.userId;
   const realtimeId = req.body.realtimeId;
+  const name = req.body.name;
   const roomName = "currentGame";
   const { online, start } = req.body;
 
   const roomRef = rtdb.ref("rooms/" + realtimeId + "/" + roomName);
   roomRef
-    .update({ [userId + "/online"]: online, [userId + "/start"]: start }) // Actualiza el estado online para el usuario específico
+    .update({ [name + "/online"]: online, [name + "/start"]: start }) // Actualiza el estado online para el usuario específico
     .then(() => {
       res.json("ok");
     })

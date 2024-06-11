@@ -14,21 +14,6 @@ class Instructions extends HTMLElement {
     this.render();
   }
 
-  incrementPlayersReady() {
-    const currentState = state.getState();
-    currentState.playersReady++;
-    if (
-      currentState.playersReady === 2 &&
-      currentState.online &&
-      currentState.start &&
-      currentState.name &&
-      currentState.rivalName
-    ) {
-      Router.go("/game");
-    }
-    state.setState(currentState);
-  }
-
   render() {
     const currentState = state.getState();
     this.shadow.innerHTML = `   
@@ -189,10 +174,23 @@ class Instructions extends HTMLElement {
     buttonEl.addEventListener("click", (e) => {
       e.preventDefault();
       onlineEl.style.display = "block";
-      const currentState = state.getState();
-      state.setState(currentState);
-      this.incrementPlayersReady();
+      //const currentState = state.getState();
+      state.playerOnline();
       state.gamePush();
+      const currentState = state.getState();
+      const players = currentState.rtdbData.currentGame;
+      const allOnline = Object.values(players).every(
+        (player: any) => player.online
+      );
+      if (allOnline) {
+        Router.go("/game");
+      }
+      /* if (
+        currentState.rtdbData.currentGame === true &&
+        currentState.rtdbData.currentGame === true
+      ) {
+        Router.go("/game");
+      }*/
     });
     this.shadow.appendChild(style);
   }

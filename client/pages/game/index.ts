@@ -1,6 +1,7 @@
 import { Router } from "@vaadin/router";
 import { state } from "../../state";
 import map from "lodash/map";
+import { stat } from "fs";
 
 class Game extends HTMLElement {
   counter = 10;
@@ -22,30 +23,31 @@ class Game extends HTMLElement {
     const imgPaper = require("url:../../img/papel.png");
 
     const currentState = state.getState();
+
     this.shadow.innerHTML = `   
     <section>
         <div class="container-hands-rival">
           <div class="container-hand-rival">
-             <img class="img-stone-rival" src="https://imgur.com/WxZ1n4a.png" alt="stone-rival" valor="stone"/>
+             <img class="img-rival" src="https://imgur.com/WxZ1n4a.png" alt="stone-rival" valor="stone"/>
           </div>
           <div class="container-hand-rival">
-            <img class="img-paper-rival" src="https://imgur.com/0KGjK2M.png" alt="paper-rival" valor="paper"/>
+            <img class="img-rival" src="https://imgur.com/0KGjK2M.png" alt="paper-rival" valor="paper"/>
           </div>
           <div class="container-hand-rival">
-             <img class="img-scissor-rival" src="https://imgur.com/Mc7opyX.png" alt="scissor-rival" valor="scissor" />
+             <img class="img-rival" src="https://imgur.com/Mc7opyX.png" alt="scissor-rival" valor="scissor" />
           </div>
         </div>
 
         <div class="counter">${this.counter} </div> 
         <div class="container-hands">
           <div class="container-hand">
-             <img class="img-stone" src=${imgStone} alt="stone" valor="stone"/>
+             <img class="img-owner" src=${imgStone} alt="stone" value="stone"/>
           </div>
           <div class="container-hand">
-             <img class="img-paper" src=${imgPaper} alt="paper" valor="paper"/>
+             <img class="img-owner" src=${imgPaper} alt="paper" value="paper"/>
           </div>
           <div class="container-hand">
-             <img class="img-scissor" src=${imgScissor} alt="scissor" valor="scissor"/>
+             <img class="img-owner" src=${imgScissor} alt="scissor" value="scissor"/>
           </div>
         </div>
     </section>
@@ -86,12 +88,12 @@ class Game extends HTMLElement {
         gap: 280px;
       }
     }
-    .img-scissor-rival, .img-stone-rival, .img-paper-rival{
+    .img-rival{
       width: 70px;
       height: 150px;
     }
     @media(min-width:600px){
-      .img-scissor-rival, .img-stone-rival, .img-paper-rival{
+      img-rival{
         width: 90px;
         height: 180px;
       }
@@ -136,12 +138,12 @@ class Game extends HTMLElement {
         gap: 280px;
       }
     }
-    .img-scissor, .img-stone, .img-paper{
+    img-owner{
       width: 70px;
       height: 150px;
     }
     @media(min-width:600px){
-      .img-scissor, .img-stone, .img-paper{
+      img-owner{
         width: 90px;
         height: 180px;
       }
@@ -149,6 +151,85 @@ class Game extends HTMLElement {
     `;
 
     this.shadow.appendChild(style);
+
+    const imgOwnerEl = this.shadow.querySelectorAll(".img-owner");
+    const imgContainerEl = this.shadow.querySelector(".container-hands");
+    let choice = false;
+
+    //Elección de mano
+    imgOwnerEl.forEach((handChosen) => {
+      handChosen.addEventListener("click", () => {
+        choice = true;
+        const hand = handChosen.getAttribute("value");
+        imgOwnerEl.forEach((img) => {
+          if (img !== handChosen) {
+            (img as HTMLImageElement).style.display = "none";
+          }
+        });
+        console.log("Value:", hand);
+        if (hand !== null) {
+          currentState.choice = hand;
+          state.setState(currentState);
+          state.gamePush();
+        }
+      });
+    });
+
+    //Counter
+    const counterEl = this.querySelector(".counter");
+    const interval = setInterval(() => {
+      if (counterEl) {
+        counterEl.textContent = this.counter.toString();
+        this.counter--;
+        if (this.counter < 0) {
+          clearInterval(interval);
+          if (!choice) {
+            console.log("No elegiste ninguna opción");
+            const currentState = state.getState();
+            currentState.online = false;
+            currentState.start = false;
+            state.setState(currentState);
+            state.gamePush();
+            Router.go("/instructions");
+          }
+          counterEl.remove();
+          this.showRivalChoise();
+          //  this.showPlayerWinner();
+        }
+      }
+    }, 1000);
+  }
+
+  showRivalChoise() {
+    const currentState = state.getState();
+    const hands = []; //tijera,piedra,papel
+    const imgRivalEl = this.querySelectorAll(".img-rival");
+    const data = currentState.rtdbData;
+    const iteratedData = map(data);
+    const userIdComparation = currentState.userId;
+    if (userIdComparation === iteratedData[0].userId) {
+      const hand = iteratedData[1].choice;
+
+      console.log("Value:", hand);
+      imgRivalEl.forEach((img) => {
+        const value = img.getAttribute("value");
+        if (value == hand) {
+          console.log("Valor es:", value);
+          console.log("Imagen es:", img);
+          (img as HTMLImageElement).style.display = "block";
+        }
+      });
+    } else {
+      const hand = iteratedData[0].choice;
+      imgRivalEl.forEach((imgItem) => {
+        const value = imgItem.getAttribute("valor");
+        if (value == hand) {
+          console.log("Valor es:", value);
+          console.log("Imagen es:", imgItem);
+          (imgItem as HTMLImageElement).style.display = "block";
+        }
+      });
+    }
   }
 }
 
