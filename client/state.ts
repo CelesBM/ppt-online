@@ -1,7 +1,7 @@
 import { ref, onValue } from "firebase/database";
 import { rtdb } from "../server/rtdb";
 
-const API_BASE_URL = "http://localhost:3004";
+const API_BASE_URL = "http://localhost:3001";
 
 const state = {
   data: {
@@ -39,7 +39,7 @@ const state = {
   },
 
   //Crear un usuario nuevo
-  createNewUser(callback) {
+  /*createNewUser(callback) {
     const currentState = this.getState();
     if (currentState.email) {
       fetch(API_BASE_URL + "/signin", {
@@ -59,6 +59,39 @@ const state = {
           callback ? callback() : false;
         })
         .catch((err) => console.log(err));
+    }
+  },*/
+
+  createNewUser(callback) {
+    const currentState = this.getState();
+    if (currentState.email) {
+      fetch(API_BASE_URL + "/signin", {
+        method: "post",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          email: currentState.email,
+          name: currentState.name,
+        }),
+      })
+        .then((res) => {
+          if (!res.ok) {
+            return res.json().then((data) => {
+              throw new Error(data.message);
+            });
+          }
+          return res.json();
+        })
+        .then((data) => {
+          currentState.userId = data.id;
+          currentState.messageError = "";
+          this.setState(currentState);
+          callback ? callback() : false;
+        })
+        .catch((err) => {
+          currentState.messageError = err.message;
+          this.setState(currentState);
+          callback ? callback(err.message) : false;
+        });
     }
   },
 
@@ -105,7 +138,6 @@ const state = {
             currentState.roomId = data.roomId;
             currentState.ownerName = data.ownerName;
             this.setState(currentState);
-            //this.listenRoom();
             callback();
           }
         });
@@ -204,6 +236,7 @@ const state = {
     const currentState = this.getState();
     currentState.online = true;
     currentState.start = true;
+    currentState.choice = "";
     fetch(API_BASE_URL + "/game", {
       method: "post",
       headers: {
@@ -212,6 +245,7 @@ const state = {
       body: JSON.stringify({
         online: currentState.online,
         start: currentState.start,
+        choice: currentState.choice,
       }),
     }).then((res) => {
       return res.json();

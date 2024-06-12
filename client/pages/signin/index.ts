@@ -24,8 +24,10 @@ class Signin extends HTMLElement {
             <label for="email">Email:</label>
             <input type="email" id="email" name="email">
         </div>
+        <p class="email-err">* El email debe tener un formato válido</p>
         <p class="err">* Debe completar ambos campos para continuar</p>
         <button class="button">Registrarse</button>
+        <p class="user-err">Este usuario ya existe</p>
     </form>
     </section>
     `;
@@ -103,7 +105,7 @@ class Signin extends HTMLElement {
       height: 50px;
     }
   }
-  .err{
+  .err, .email-err, .user-err{
       display: none;
       font-size: 14px;
       color: red;
@@ -142,21 +144,49 @@ class Signin extends HTMLElement {
     const nameInput = formEl.querySelector("#name") as HTMLInputElement;
     const buttonEl = this.shadow.querySelector(".button") as HTMLButtonElement;
     const errorEl = this.shadow.querySelector(".err") as HTMLDivElement;
+    const emailErrorEl = this.shadow.querySelector(
+      ".email-err"
+    ) as HTMLDivElement;
+    const userErrorEl = this.shadow.querySelector(
+      ".user-err"
+    ) as HTMLDivElement;
 
     buttonEl.addEventListener("click", (e) => {
       e.preventDefault();
+
+      //valores ingresados en los input:
       const email = emailInput.value;
       const name = nameInput.value;
-      // Verificar si los campos están vacíos
+
+      //verificar si los campos están vacíos:
       if (email.trim() === "" || name.trim() === "") {
         errorEl.style.display = "block";
         return;
       }
-      errorEl.style.display = "none"; //en caso que al principio no lo completé, si luego lo completo no sigue apareciendo el .err
-      console.log("Nombre:", name, "&&", "Email:", email);
+
+      //ocultar mensaje de error si estaba visible y lo arreglé:
+      errorEl.style.display = "none";
+
+      //verificar formato email:
+      const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+      if (!emailPattern.test(email)) {
+        emailErrorEl.style.display = "block";
+        return;
+      }
+      emailErrorEl.style.display = "none";
+
+      //guardo datos en state y base de datos:
       state.setEmailAndName(email, name);
-      state.createNewUser(() => {
-        Router.go("option-room");
+      state.createNewUser((error) => {
+        if (error) {
+          if (error === "El mail ya existe") {
+            userErrorEl.style.display = "block";
+          } else {
+            alert("Error: " + error);
+          }
+        } else {
+          Router.go("option-room");
+        }
       });
     });
 

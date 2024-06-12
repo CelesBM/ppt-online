@@ -1,7 +1,6 @@
 import { Router } from "@vaadin/router";
 import { state } from "../../state";
 import map from "lodash/map";
-import { stat } from "fs";
 
 class Game extends HTMLElement {
   counter = 10;
@@ -176,7 +175,7 @@ class Game extends HTMLElement {
     });
 
     //Counter
-    const counterEl = this.querySelector(".counter");
+    const counterEl = this.shadow.querySelector(".counter");
     const interval = setInterval(() => {
       if (counterEl) {
         counterEl.textContent = this.counter.toString();
@@ -202,11 +201,33 @@ class Game extends HTMLElement {
 
   showRivalChoise() {
     const currentState = state.getState();
-    const hands = []; //tijera,piedra,papel
-    const imgRivalEl = this.querySelectorAll(".img-rival");
+    //const hands = []; //tijera,piedra,papel
+    const imgRivalEl = this.shadow.querySelectorAll(".img-rival");
     const data = currentState.rtdbData;
     const iteratedData = map(data);
+
+    //nuevo
     const userIdComparation = currentState.userId;
+    let rivalChoice = "";
+
+    if (iteratedData[0].userId === userIdComparation) {
+      rivalChoice = iteratedData[1].choice;
+    } else {
+      rivalChoice = iteratedData[0].choice;
+    }
+
+    imgRivalEl.forEach((img) => {
+      const value = img.getAttribute("value");
+      if (value === rivalChoice) {
+        (img as HTMLImageElement).style.display = "block";
+      } else {
+        (img as HTMLImageElement).style.display = "none";
+      }
+    });
+    //aca termina lo nuevo
+
+    //viejo
+    /*const userIdComparation = currentState.userId;
     if (userIdComparation === iteratedData[0].userId) {
       const hand = iteratedData[1].choice;
 
@@ -229,7 +250,7 @@ class Game extends HTMLElement {
           (imgItem as HTMLImageElement).style.display = "block";
         }
       });
-    }
+    }*/ // aca termina lo viejo
   }
 }
 

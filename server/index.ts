@@ -4,7 +4,7 @@ import * as path from "path";
 import { firestore, rtdb } from "./db";
 import { v4 as uuidv4 } from "uuid";
 
-const PORT = 3004;
+const PORT = 3001;
 const app = express();
 app.use(express.json());
 app.use(cors());
@@ -203,11 +203,15 @@ app.post("/game", (req, res) => {
   const realtimeId = req.body.realtimeId;
   const name = req.body.name;
   const roomName = "currentGame";
-  const { online, start } = req.body;
+  const { online, start, choice } = req.body;
 
   const roomRef = rtdb.ref("rooms/" + realtimeId + "/" + roomName);
   roomRef
-    .update({ [name + "/online"]: online, [name + "/start"]: start }) // Actualiza el estado online para el usuario específico
+    .update({
+      [name + "/online"]: online,
+      [name + "/start"]: start,
+      [name + "/choice"]: choice,
+    }) // Actualiza el estado online para el usuario específico
     .then(() => {
       res.json("ok");
     })

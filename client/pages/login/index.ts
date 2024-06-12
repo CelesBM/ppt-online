@@ -26,7 +26,9 @@ class Login extends HTMLElement {
             </div>
             <p class="err">* Debe completar ambos campos para continuar</p>
             <button class="button">Iniciar sesión</button>
+           <p class="err-user">Usuario no registrado</p>
         </form>
+       
     </section>
     `;
 
@@ -110,6 +112,12 @@ class Login extends HTMLElement {
         font-style: italic;
         margin: 5px 0px;
     }
+    .err-user{
+        display: none;
+        font-size: 15px;
+        color: red;
+        margin: 5px 0px;
+    }
     button{
         cursor: pointer;
         width: 180px;
@@ -142,21 +150,35 @@ class Login extends HTMLElement {
     const nameInput = formEl.querySelector("#name") as HTMLInputElement;
     const buttonEl = this.shadow.querySelector(".button") as HTMLButtonElement;
     const errorEl = this.shadow.querySelector(".err") as HTMLDivElement;
+    const errorUserEl = this.shadow.querySelector(
+      ".err-user"
+    ) as HTMLDivElement;
 
     buttonEl.addEventListener("click", (e) => {
       e.preventDefault();
+
+      //valores ingresados en los input:
       const email = emailInput.value;
       const name = nameInput.value;
-      // Verificar si los campos están vacíos
+
+      //verificar si los campos están vacíos:
       if (email.trim() === "" || name.trim() === "") {
         errorEl.style.display = "block";
         return;
       }
-      errorEl.style.display = "none"; //en caso que al principio no lo completé, si luego lo completo no sigue apareciendo el .err
-      console.log("Nombre:", name, "&&", "Email:", email);
+
+      //ocultar mensaje de error si estaba visible y lo arreglé:
+      errorEl.style.display = "none";
+      errorUserEl.style.display = "none";
+
+      //guardo datos en state y base de datos:
       state.setEmailAndName(email, name);
-      state.login(() => {
-        Router.go("option-room");
+      state.login((success) => {
+        if (success) {
+          Router.go("option-room");
+        } else {
+          errorUserEl.style.display = "block";
+        }
       });
     });
     this.shadow.appendChild(style);
