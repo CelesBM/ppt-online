@@ -10,4 +10,7 @@ router.setRoutes([
   { path: "/existing-room", component: "existing-room-comp" },
   { path: "/instructions", component: "instructions-comp" },
   { path: "/game", component: "game-comp" },
+  { path: "/win", component: "win-comp" },
+  { path: "/lose", component: "lose-comp" },
+  { path: "/tie", component: "tie-comp" },
 ]);

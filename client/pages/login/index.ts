@@ -173,12 +173,8 @@ class Login extends HTMLElement {
 
       //guardo datos en state y base de datos:
       state.setEmailAndName(email, name);
-      state.login((success) => {
-        if (success) {
-          Router.go("option-room");
-        } else {
-          errorUserEl.style.display = "block";
-        }
+      state.login(() => {
+        Router.go("option-room");
       });
     });
     this.shadow.appendChild(style);

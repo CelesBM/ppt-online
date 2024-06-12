@@ -7,3 +7,6 @@ import "./pages/new-room/index";
 import "./pages/existing-room/index";
 import "./pages/instructions/index";
 import "./pages/game/index";
+import "./pages/win/index";
+import "./pages/lose/index";
+import "./pages/tie/index";

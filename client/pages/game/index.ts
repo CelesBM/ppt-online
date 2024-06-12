@@ -137,12 +137,12 @@ class Game extends HTMLElement {
         gap: 280px;
       }
     }
-    img-owner{
+    .img-owner{
       width: 70px;
       height: 150px;
     }
     @media(min-width:600px){
-      img-owner{
+      .img-owner{
         width: 90px;
         height: 180px;
       }
@@ -163,6 +163,7 @@ class Game extends HTMLElement {
         imgOwnerEl.forEach((img) => {
           if (img !== handChosen) {
             (img as HTMLImageElement).style.display = "none";
+            (imgContainerEl as HTMLElement).style.gap = "0px";
           }
         });
         console.log("Value:", hand);
