@@ -1,6 +1,7 @@
 import { Router } from "@vaadin/router";
 import { state } from "../../state";
 import map from "lodash/map";
+import { serialize } from "v8";
 
 class Game extends HTMLElement {
   counter = 10;
@@ -27,13 +28,13 @@ class Game extends HTMLElement {
     <section>
         <div class="container-hands-rival">
           <div class="container-hand-rival">
-             <img class="img-rival" src="https://imgur.com/WxZ1n4a.png" alt="stone-rival" valor="stone"/>
+             <img class="img-rival" src="https://imgur.com/WxZ1n4a.png" alt="stone-rival" value="stone"/>
           </div>
           <div class="container-hand-rival">
-            <img class="img-rival" src="https://imgur.com/0KGjK2M.png" alt="paper-rival" valor="paper"/>
+            <img class="img-rival" src="https://imgur.com/0KGjK2M.png" alt="paper-rival" value="paper"/>
           </div>
           <div class="container-hand-rival">
-             <img class="img-rival" src="https://imgur.com/Mc7opyX.png" alt="scissor-rival" valor="scissor" />
+             <img class="img-rival" src="https://imgur.com/Mc7opyX.png" alt="scissor-rival" value="scissor" />
           </div>
         </div>
 
@@ -155,7 +156,7 @@ class Game extends HTMLElement {
     const imgContainerEl = this.shadow.querySelector(".container-hands");
     let choice = false;
 
-    //Elección de mano
+    //Elección de mano y ocultar las no elegidas:
     imgOwnerEl.forEach((handChosen) => {
       handChosen.addEventListener("click", () => {
         choice = true;
@@ -166,11 +167,11 @@ class Game extends HTMLElement {
             (imgContainerEl as HTMLElement).style.gap = "0px";
           }
         });
-        console.log("Value:", hand);
+        console.log("Value:", hand); //imprime en consola mano elegida
         if (hand !== null) {
           currentState.choice = hand;
           state.setState(currentState);
-          state.gamePush();
+          state.gamePush(); //en currentState.choice deberia aparecer la mano?
         }
       });
     });
@@ -194,7 +195,6 @@ class Game extends HTMLElement {
           }
           counterEl.remove();
           this.showRivalChoise();
-          //  this.showPlayerWinner();
         }
       }
     }, 1000);
@@ -202,56 +202,54 @@ class Game extends HTMLElement {
 
   showRivalChoise() {
     const currentState = state.getState();
-    //const hands = []; //tijera,piedra,papel
     const imgRivalEl = this.shadow.querySelectorAll(".img-rival");
+    const imgRivalContainerEl = this.shadow.querySelector(
+      ".container-hands-rival"
+    );
     const data = currentState.rtdbData;
-    const iteratedData = map(data);
+    const currentGame = data.currentGame;
+    const myName = currentState.name;
+    let rivalChoice = ""; // Variable para almacenar la elección del rival
 
-    //nuevo
-    const userIdComparation = currentState.userId;
-    let rivalChoice = "";
+    for (const playerName in currentGame) {
+      if (Object.hasOwnProperty.call(currentGame, playerName)) {
+        const playerData = currentGame[playerName]; //jugador actual y rival
+        const playerChoice = playerData.choice; //mi eleccion y la del rival
 
-    if (iteratedData[0].userId === userIdComparation) {
-      rivalChoice = iteratedData[1].choice;
-    } else {
-      rivalChoice = iteratedData[0].choice;
+        //en caso de que el nombre del player no sea el mío:
+        if (playerName !== myName) {
+          rivalChoice = playerChoice; // Almacena la elección del rival
+          console.log("Rival:", playerName, "Elección:", rivalChoice);
+        }
+      }
     }
 
+    //visibiliza solo la mano elegida por el rival:
     imgRivalEl.forEach((img) => {
-      const value = img.getAttribute("value");
-      if (value === rivalChoice) {
-        (img as HTMLImageElement).style.display = "block";
-      } else {
+      const hand = img.getAttribute("value");
+      if (hand !== rivalChoice) {
         (img as HTMLImageElement).style.display = "none";
+        (imgRivalContainerEl as HTMLElement).style.gap = "0px";
       }
     });
-    //aca termina lo nuevo
 
-    //viejo
-    /*const userIdComparation = currentState.userId;
-    if (userIdComparation === iteratedData[0].userId) {
-      const hand = iteratedData[1].choice;
+    setTimeout(() => {
+      this.showPlayerWinner(currentState.choice, rivalChoice);
+    }, 2000);
+  }
 
-      console.log("Value:", hand);
-      imgRivalEl.forEach((img) => {
-        const value = img.getAttribute("value");
-        if (value == hand) {
-          console.log("Valor es:", value);
-          console.log("Imagen es:", img);
-          (img as HTMLImageElement).style.display = "block";
-        }
-      });
+  showPlayerWinner(playerChoice, rivalChoice) {
+    if (playerChoice === rivalChoice) {
+      Router.go("/tie");
+    } else if (
+      (playerChoice === "stone" && rivalChoice === "scissor") ||
+      (playerChoice === "scissor" && rivalChoice === "paper") ||
+      (playerChoice === "paper" && rivalChoice === "stone")
+    ) {
+      Router.go("/win");
     } else {
-      const hand = iteratedData[0].choice;
-      imgRivalEl.forEach((imgItem) => {
-        const value = imgItem.getAttribute("valor");
-        if (value == hand) {
-          console.log("Valor es:", value);
-          console.log("Imagen es:", imgItem);
-          (imgItem as HTMLImageElement).style.display = "block";
-        }
-      });
-    }*/ // aca termina lo viejo
+      Router.go("/lose");
+    }
   }
 }
 

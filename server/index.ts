@@ -4,7 +4,7 @@ import * as path from "path";
 import { firestore, rtdb } from "./db";
 import { v4 as uuidv4 } from "uuid";
 
-const PORT = 3001;
+const PORT = 3005;
 const app = express();
 app.use(express.json());
 app.use(cors());
@@ -219,6 +219,27 @@ app.post("/game", (req, res) => {
       console.error("Error al actualizar estado online:", error);
       res.status(500).json({ message: "Error interno del servidor" });
     });
+});
+
+// En este endpoint vamos a actualizar la data de firestore con la data que le pasamos por el front,
+// para ir pusheando los resultados, ejemplo:{player1: 0+1, player2:0}
+app.post("/results/:roomId", (req, res) => {
+  const userId = req.query.userId;
+  const roomId = req.params.roomId;
+
+  if (userId !== undefined) {
+    userCollection
+      .doc(userId.toString())
+      .get()
+      .then((doc) => {
+        if (doc.exists) {
+          roomCollection.doc(roomId.toString()).update(req.body);
+          res.json("results ok");
+        } else {
+          res.json("No existe el userId");
+        }
+      });
+  }
 });
 
 app.use(express.static("dist"));

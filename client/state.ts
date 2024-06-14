@@ -1,7 +1,7 @@
 import { ref, onValue } from "firebase/database";
 import { rtdb } from "../server/rtdb";
 
-const API_BASE_URL = "http://localhost:3001";
+const API_BASE_URL = "http://localhost:3005";
 
 const state = {
   data: {
@@ -209,6 +209,7 @@ const state = {
           if (data.message === undefined || "") {
             currentState.rtdbId = data.rtdbId;
             currentState.ownerName = data.ownerName;
+            //Tengo que probar si con listenroom me toma el rival.
             currentState.player1 = data.results.player1;
             currentState.player2 = data.results.player2;
             if (
@@ -250,6 +251,27 @@ const state = {
     }).then((res) => {
       return res.json();
     });
+  },
+
+  updateRoom() {
+    const currentState = state.getState();
+    const roomId = currentState.roomId;
+
+    fetch(
+      API_BASE_URL + "/results/" + roomId + "?userId=" + currentState.userId,
+      {
+        method: "post",
+        headers: {
+          "content-type": "application/json",
+        },
+        body: JSON.stringify({
+          results: {
+            player1: currentState.player1,
+            player2: currentState.player2,
+          },
+        }),
+      }
+    );
   },
 
   gamePush() {
