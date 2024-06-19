@@ -17,10 +17,10 @@ class ExistingRoom extends HTMLElement {
     this.shadow.innerHTML = `   
     <section>
         <h2>¡ Bienvenido/a, </br>${currentState.name} !</h2>
-        <p>Ingrese el código de sala</p>
-        <input type="text" id="roomId" name="roomId">
+          <p>Ingrese el código de sala</p>
+          <input type="text" id="roomId" name="roomId">
         <div class="container-err">
-            <h5 class="err">* Esta sala no existe.</h5>
+          <h5 class="err">* Esta sala no existe.</h5>
         </div>
         <button class="button">Ingresar a la sala</button>
     </section>
@@ -173,8 +173,8 @@ class ExistingRoom extends HTMLElement {
       currentState.roomId = inputValue;
       state.setState(currentState);
       state.getRoom(() => {
-        const currenState = state.getState();
-        if (currenState.messageError === "" || undefined) {
+        const currentState = state.getState();
+        if (currentState.messageError === "" || undefined) {
           state.gamePush();
           Router.go("/instructions");
         } else {

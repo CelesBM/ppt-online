@@ -1,11 +1,9 @@
 import { Router } from "@vaadin/router";
 import { state } from "../../state";
-import map from "lodash/map";
-import { serialize } from "v8";
 
 class Game extends HTMLElement {
   counter = 10;
-  ValueArrays: string[] = [];
+  //ValueArrays: string[] = [];
 
   shadow: ShadowRoot;
   constructor() {
@@ -56,14 +54,13 @@ class Game extends HTMLElement {
     const style = document.createElement("style");
     style.innerHTML = `
     section{
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-content: center;
-        align-items: center;
-        gap: 40px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-content: center;
+      align-items: center;
+      gap: 40px;
     }
-
     .container-hands-rival{
       display: flex;
       justify-content: center;
@@ -167,11 +164,10 @@ class Game extends HTMLElement {
             (imgContainerEl as HTMLElement).style.gap = "0px";
           }
         });
-        console.log("Value:", hand); //imprime en consola mano elegida
         if (hand !== null) {
           currentState.choice = hand;
           state.setState(currentState);
-          state.gamePush(); //en currentState.choice deberia aparecer la mano?
+          state.gamePush();
         }
       });
     });
@@ -194,20 +190,20 @@ class Game extends HTMLElement {
             Router.go("/instructions");
           }
           counterEl.remove();
-          this.showRivalChoise();
+          this.showRivalChoice();
         }
       }
     }, 1000);
   }
 
-  showRivalChoise() {
+  showRivalChoice() {
     const currentState = state.getState();
     const imgRivalEl = this.shadow.querySelectorAll(".img-rival");
     const imgRivalContainerEl = this.shadow.querySelector(
       ".container-hands-rival"
     );
-    const data = currentState.rtdbData;
-    const currentGame = data.currentGame;
+
+    const currentGame = currentState.rtdbData.currentGame;
     const myName = currentState.name;
     let rivalChoice = ""; // Variable para almacenar la elección del rival
 
@@ -224,7 +220,7 @@ class Game extends HTMLElement {
       }
     }
 
-    //visibiliza solo la mano elegida por el rival:
+    //Visibiliza solo la mano elegida por el rival:
     imgRivalEl.forEach((img) => {
       const hand = img.getAttribute("value");
       if (hand !== rivalChoice) {
@@ -238,18 +234,53 @@ class Game extends HTMLElement {
     }, 2000);
   }
 
+  //Conocer quién ganó la partida:
   showPlayerWinner(playerChoice, rivalChoice) {
+    const currentState = state.getState();
+    const myName = currentState.name;
+    let winner = "";
+
+    //determinar en qué casos gana y pierde y sumar puntos en player1 y player2:
     if (playerChoice === rivalChoice) {
-      Router.go("/tie");
+      winner = "tie";
     } else if (
       (playerChoice === "stone" && rivalChoice === "scissor") ||
       (playerChoice === "scissor" && rivalChoice === "paper") ||
       (playerChoice === "paper" && rivalChoice === "stone")
     ) {
-      Router.go("/win");
+      winner = currentState.ownerName;
+      if (myName === currentState.ownerName) {
+        currentState.player1 += 1;
+      } else {
+        currentState.player2 += 1;
+      }
     } else {
-      Router.go("/lose");
+      winner = currentState.rivalName;
+      if (myName === currentState.ownerName) {
+        currentState.player2 += 1;
+      } else {
+        currentState.player1 += 1;
+      }
     }
+
+    //actualizar el resultado en el currentState:
+    currentState.result =
+      winner === myName ? "win" : winner === "tie" ? "tie" : "lose";
+    state.setState(currentState);
+
+    //enviar resultados al server:
+    state.updateRoom();
+
+    //redirigir según resultado de partida:
+    setTimeout(() => {
+      if (winner === currentState.ownerName) {
+        Router.go("/win");
+      } else if (winner === currentState.rivalName) {
+        Router.go("/lose");
+      } else {
+        Router.go("/tie");
+      }
+    }, 2000);
   }
 }
 

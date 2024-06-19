@@ -20,7 +20,6 @@ const state = {
     choice: "",
     online: "",
     start: "",
-    playersReady: 0,
   },
 
   listeners: [], //array de funciones
@@ -38,30 +37,7 @@ const state = {
     this.setState(currentState);
   },
 
-  //Crear un usuario nuevo
-  /*createNewUser(callback) {
-    const currentState = this.getState();
-    if (currentState.email) {
-      fetch(API_BASE_URL + "/signin", {
-        method: "post",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({
-          email: currentState.email,
-          name: currentState.name,
-        }),
-      })
-        .then((res) => {
-          return res.json();
-        })
-        .then((data) => {
-          console.log("data:", data), (currentState.userId = data.id);
-          this.setState(currentState);
-          callback ? callback() : false;
-        })
-        .catch((err) => console.log(err));
-    }
-  },*/
-
+  //Crear nuevo usuario
   createNewUser(callback) {
     const currentState = this.getState();
     if (currentState.email) {
@@ -159,7 +135,7 @@ const state = {
     });
   },
 
-  //Asociar rival
+  //VER SI LO NECESITO.
   joinRoom(roomId) {
     const currentState = this.getState();
     const userId = currentState.userId;
@@ -209,7 +185,6 @@ const state = {
           if (data.message === undefined || "") {
             currentState.rtdbId = data.rtdbId;
             currentState.ownerName = data.ownerName;
-            //Tengo que probar si con listenroom me toma el rival.
             currentState.player1 = data.results.player1;
             currentState.player2 = data.results.player2;
             if (
@@ -233,6 +208,7 @@ const state = {
       });
   },
 
+  //Player online y start, ver choice del jugador
   playerOnline() {
     const currentState = this.getState();
     currentState.online = true;
@@ -253,12 +229,17 @@ const state = {
     });
   },
 
+  //Actualizo room con la partida jugada y los resultados
   updateRoom() {
-    const currentState = state.getState();
+    const currentState = this.getState();
     const roomId = currentState.roomId;
 
     fetch(
-      API_BASE_URL + "/results/" + roomId + "?userId=" + currentState.userId,
+      API_BASE_URL +
+        "/updateResults/" +
+        roomId +
+        "?userId=" +
+        currentState.userId,
       {
         method: "post",
         headers: {
@@ -271,9 +252,17 @@ const state = {
           },
         }),
       }
-    );
+    )
+      .then((res) => res.json())
+      .then((data) => {
+        console.log("Resultados actualizados en el servidor:", data);
+      })
+      .catch((error) => {
+        console.error("Error al actualizar resultados:", error);
+      });
   },
 
+  //Actualizo partida
   gamePush() {
     const currentState = this.getState();
     const currentName = currentState.name;
@@ -288,7 +277,7 @@ const state = {
         result: currentState.result,
         choice: currentState.choice,
         name: currentName,
-        rivalName: currentState.rivalName, // Enviar el nombre del rival al servidor
+        rivalName: currentState.rivalName,
         online: currentState.online,
         start: currentState.start,
       }),

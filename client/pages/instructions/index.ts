@@ -1,6 +1,5 @@
 import { Router } from "@vaadin/router";
 import { state } from "../../state";
-import map from "lodash/map";
 
 class Instructions extends HTMLElement {
   shadow: ShadowRoot;
@@ -174,7 +173,6 @@ class Instructions extends HTMLElement {
     buttonEl.addEventListener("click", (e) => {
       e.preventDefault();
       onlineEl.style.display = "block";
-      //const currentState = state.getState();
       state.playerOnline();
       state.gamePush();
       const currentState = state.getState();
@@ -185,12 +183,6 @@ class Instructions extends HTMLElement {
       if (allOnline) {
         Router.go("/game");
       }
-      /* if (
-        currentState.rtdbData.currentGame === true &&
-        currentState.rtdbData.currentGame === true
-      ) {
-        Router.go("/game");
-      }*/
     });
     this.shadow.appendChild(style);
   }

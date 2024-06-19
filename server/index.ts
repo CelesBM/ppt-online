@@ -181,7 +181,16 @@ app.get("/rooms/:roomId", (req, res) => {
               if (snap.exists) {
                 const roomData = snap.data();
                 const userData = doc.data();
-                roomData.name = userData.name;
+                //roomData.name = userData.name; //ver lo saque recien
+                roomData.player1 = userData.name;
+                roomData.player2 = roomData.rivalName;
+                // Verificar si el usuario es el propietario de la sala
+                if (userData.name !== roomData.ownerName) {
+                  roomData.rivalName = userData.name;
+                  roomCollection
+                    .doc(roomId)
+                    .update({ rivalName: userData.name });
+                }
                 res.json(roomData);
               } else {
                 res.status(401).json({
@@ -223,22 +232,40 @@ app.post("/game", (req, res) => {
 
 // En este endpoint vamos a actualizar la data de firestore con la data que le pasamos por el front,
 // para ir pusheando los resultados, ejemplo:{player1: 0+1, player2:0}
-app.post("/results/:roomId", (req, res) => {
+// Endpoint para actualizar los resultados de la sala
+app.post("/updateResults/:roomId", (req, res) => {
   const userId = req.query.userId;
   const roomId = req.params.roomId;
+  const results = req.body.results;
 
-  if (userId !== undefined) {
+  if (userId && roomId && results) {
     userCollection
       .doc(userId.toString())
       .get()
       .then((doc) => {
         if (doc.exists) {
-          roomCollection.doc(roomId.toString()).update(req.body);
-          res.json("results ok");
+          roomCollection
+            .doc(roomId.toString())
+            .update({
+              results: results,
+            })
+            .then(() => {
+              res.json("Resultados actualizados correctamente");
+            })
+            .catch((error) => {
+              console.error("Error al actualizar resultados:", error);
+              res.status(500).json({ message: "Error interno del servidor" });
+            });
         } else {
-          res.json("No existe el userId");
+          res.status(401).json({ message: "Usuario no encontrado" });
         }
+      })
+      .catch((error) => {
+        console.error("Error al obtener usuario:", error);
+        res.status(500).json({ message: "Error interno del servidor" });
       });
+  } else {
+    res.status(400).json({ message: "Parámetros incompletos" });
   }
 });
 

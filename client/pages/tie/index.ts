@@ -1,4 +1,5 @@
 import { Router } from "@vaadin/router";
+import { state } from "../../state";
 
 class Tie extends HTMLElement {
   shadow: ShadowRoot;
@@ -12,12 +13,13 @@ class Tie extends HTMLElement {
   }
 
   render() {
+    const currentState = state.getState();
     this.shadow.innerHTML = `   
     <section>
         <h2>Empate &#x1F921;</h2>
         <div class="container-score">
-            <h5>Nombre 1: 0</h5>
-            <h5>Nombre 2: 0</h5>
+            <h5>${currentState.ownerName}: 0</h5>
+            <h5>${currentState.rivalName}: 0</h5>
         </div>
         <button class="button">Volver a jugar</button>
     </section>
@@ -73,7 +75,7 @@ class Tie extends HTMLElement {
         width: 200px;
         border-radius: 4px;
         padding: 25px 50px;
-        text-align: center;
+        text-align: start;
         line-height: 30px;
         font-size: 25px; 
     }
@@ -125,6 +127,13 @@ class Tie extends HTMLElement {
     `;
 
     this.shadow.appendChild(style);
+
+    const buttonEl = this.shadow.querySelector(".button");
+
+    buttonEl.addEventListener("click", (e) => {
+      e.preventDefault;
+      Router.go("/game");
+    });
   }
 }
 
