@@ -66,7 +66,13 @@ const state = {
         .catch((err) => {
           currentState.messageError = err.message;
           this.setState(currentState);
-          callback ? callback(err.message) : false;
+          if (err.message === "El mail ya existe") {
+            // Mostrar mensaje de usuario existente
+            callback ? callback(err.message) : false;
+          } else {
+            // Otro tipo de error, podrías manejarlo aquí si es necesario
+            callback ? callback(err.message) : false;
+          }
         });
     }
   },

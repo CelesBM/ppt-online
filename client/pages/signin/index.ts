@@ -180,12 +180,12 @@ class Signin extends HTMLElement {
       state.createNewUser((error) => {
         if (error) {
           if (error === "El mail ya existe") {
-            userErrorEl.style.display = "block";
+            userErrorEl.style.display = "block"; // Mostrar mensaje de usuario existente
           } else {
-            alert("Error: " + error);
+            alert("Error: " + error); // Mostrar otros errores en un alert
           }
         } else {
-          Router.go("option-room");
+          Router.go("option-room"); // Redirigir cuando no hay errores
         }
       });
     });

@@ -5,6 +5,7 @@ import { firestore, rtdb } from "./db";
 import { v4 as uuidv4 } from "uuid";
 
 const PORT = 3005;
+//const PORT = process.env.PORT || 3005;
 const app = express();
 app.use(express.json());
 app.use(cors());
@@ -13,7 +14,7 @@ const userCollection = firestore.collection("users");
 const roomCollection = firestore.collection("rooms");
 
 //Endpoint para registrar nuevos usuarios. Devuelve el id del nuevo user.
-app.post("/signin", (req, res) => {
+/*app.post("/signin", (req, res) => {
   const email = req.body.email;
   const name = req.body.name;
 
@@ -50,6 +51,42 @@ app.post("/signin", (req, res) => {
         res.status(200).json({ id: searchResponse.docs[0].id });
       }
     });
+});*/
+
+app.post("/signin", (req, res) => {
+  const email = req.body.email;
+  const name = req.body.name;
+
+  if (!name) {
+    res.status(400).json({ message: "El nombre es obligatorio" });
+    return;
+  }
+
+  // Buscar si el correo electrónico ya existe
+  userCollection
+    .where("email", "==", email)
+    .get()
+    .then((searchResponse) => {
+      if (!searchResponse.empty) {
+        // Si el correo electrónico ya existe, enviar respuesta de error
+        res.status(400).json({ message: "El mail ya existe" });
+      } else {
+        // Si el correo electrónico no existe, agregar el usuario
+        userCollection
+          .add({ email, name })
+          .then((data) => {
+            res.json({ id: data.id });
+          })
+          .catch((error) => {
+            console.error("Error al agregar usuario:", error);
+            res.status(500).json({ message: "Error interno del servidor" });
+          });
+      }
+    })
+    .catch((error) => {
+      console.error("Error al buscar usuario:", error);
+      res.status(500).json({ message: "Error interno del servidor" });
+    });
 });
 
 //Endpoint para iniciar sesión con usuario ya creado.
@@ -81,7 +118,7 @@ app.post("/createRoom", (req, res) => {
       if (doc.exists) {
         const userData = doc.data();
         const longId = uuidv4();
-        const roomRef = rtdb.ref("/rooms" + longId + "/" + roomName);
+        const roomRef = rtdb.ref("/rooms/" + longId + "/" + roomName); // Corregir la ruta de la referencia
         roomRef.set({ owner: userId }).then(() => {
           const shortId = 1000 + Math.floor(Math.random() * 999);
           roomCollection
@@ -102,10 +139,15 @@ app.post("/createRoom", (req, res) => {
               });
             });
         });
+      } else {
+        res.status(404).json({ error: "Usuario no encontrado" });
       }
+    })
+    .catch((error) => {
+      console.error("Error al obtener usuario:", error);
+      res.status(500).json({ error: "Error interno del servidor" });
     });
 });
-
 //Endpoint para unirse a una sala existente.
 app.post("/joinRoom", (req, res) => {
   const userId = req.body.userId;
