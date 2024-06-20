@@ -89,15 +89,31 @@ const state = {
         }),
       })
         .then((res) => {
+          if (!res.ok) {
+            return res.json().then((data) => {
+              throw new Error(data.message);
+            });
+          }
           return res.json();
         })
         .then((data) => {
           console.log("data:", data);
           currentState.userId = data.userId;
+          currentState.messageError = "";
           this.setState(currentState);
           callback ? callback() : false;
         })
-        .catch((err) => console.log(err));
+        .catch((err) => {
+          currentState.messageError = err.message;
+          this.setState(currentState);
+          if (err.message === "User no existe") {
+            // Mostrar mensaje de usuario no existente
+            callback ? callback(err.message) : false;
+          } else {
+            // Otro tipo de error, podrías manejarlo aquí si es necesario
+            callback ? callback(err.message) : false;
+          }
+        });
     }
   },
 
