@@ -18,8 +18,8 @@ class Win extends HTMLElement {
     <section>
         <h2>Ganaste &#x1F3C6;</h2>
         <div class="container-score">
-            <h5>${currentState.ownerName}: 0</h5>
-            <h5>${currentState.rivalName}: 0</h5>
+            <h5>${currentState.ownerName}: ${currentState.player1}</h5>
+            <h5>${currentState.rivalName}: ${currentState.player2}</h5>
         </div>
         <button class="button">Volver a jugar</button>
     </section>
