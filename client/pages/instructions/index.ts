@@ -163,6 +163,21 @@ class Instructions extends HTMLElement {
       font-size: 12px;
       text-align: center;
     }
+        @media(min-width:500px){
+        .wait-online{
+          font-size: 15px;
+        }
+      }
+         @media(min-width:700px){
+        .wait-online{
+          font-size: 17px;
+        }
+      }
+         @media(min-width:1020px){
+        .wait-online{
+          font-size: 20px;
+        }
+      }
     `;
 
     const buttonEl = this.shadow.querySelector(".button") as HTMLButtonElement;
@@ -176,12 +191,21 @@ class Instructions extends HTMLElement {
       state.playerOnline();
       state.gamePush();
       const currentState = state.getState();
-      const players = currentState.rtdbData.currentGame;
-      const allOnline = Object.values(players).every(
-        (player: any) => player.online
-      );
-      if (allOnline) {
+      const currentGame = currentState.rtdbData.currentGame;
+
+      let allPlayersReady = true;
+      Object.keys(currentGame).forEach((key) => {
+        if (key !== "owner" && !currentGame[key].start) {
+          allPlayersReady = false;
+        }
+      });
+
+      if (allPlayersReady) {
+        console.log("ok");
+        // Aquí puedes añadir la lógica para avanzar a la siguiente página
         Router.go("/game");
+      } else {
+        console.log("Esperando que ambos jugadores estén listos...");
       }
     });
     this.shadow.appendChild(style);

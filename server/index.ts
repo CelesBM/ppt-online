@@ -13,46 +13,6 @@ app.use(cors());
 const userCollection = firestore.collection("users");
 const roomCollection = firestore.collection("rooms");
 
-//Endpoint para registrar nuevos usuarios. Devuelve el id del nuevo user.
-/*app.post("/signin", (req, res) => {
-  const email = req.body.email;
-  const name = req.body.name;
-
-  if (!name) {
-    res.status(400).json({ message: "El nombre es obligatorio" });
-    return;
-  }
-
-  userCollection
-    .where("email", "==", email)
-    .get()
-    .then((searchResponse) => {
-      if (!searchResponse.empty) {
-        res.status(400).json({ message: "El mail ya existe" });
-        return;
-      }
-    });
-
-  userCollection
-    .where("email", "==", email)
-    .get()
-    .then((searchResponse) => {
-      if (searchResponse.empty) {
-        userCollection
-          .add({ email, name })
-          .then((data) => {
-            res.json({ id: data.id });
-          })
-          .catch((error) => {
-            console.error("Error al agregar usuario:", error);
-            res.status(500).json({ message: "Error interno del servidor" });
-          });
-      } else {
-        res.status(200).json({ id: searchResponse.docs[0].id });
-      }
-    });
-});*/
-
 app.post("/signin", (req, res) => {
   const email = req.body.email;
   const name = req.body.name;
@@ -107,6 +67,7 @@ app.post("/login", (req, res) => {
 });
 
 //Endpoint para generar una nueva sala.
+
 app.post("/createRoom", (req, res) => {
   const userId = req.body.userId;
   const roomName = "currentGame";
@@ -119,6 +80,7 @@ app.post("/createRoom", (req, res) => {
         const userData = doc.data();
         const longId = uuidv4();
         const roomRef = rtdb.ref("/rooms/" + longId + "/" + roomName); // Corregir la ruta de la referencia
+        //roomRef.set({ owner: userId }).then(() => {
         roomRef.set({ owner: userId }).then(() => {
           const shortId = 1000 + Math.floor(Math.random() * 999);
           roomCollection
