@@ -3,7 +3,6 @@ import { state } from "../../state";
 
 class Game extends HTMLElement {
   counter = 10;
-  //ValueArrays: string[] = [];
 
   shadow: ShadowRoot;
   constructor() {
@@ -240,6 +239,14 @@ class Game extends HTMLElement {
     const myName = currentState.name;
     let winner = "";
 
+    console.log(
+      "elecciones desde showPlayerWinner: ",
+      "mi eleccion:",
+      playerChoice,
+      "eleccion rival",
+      rivalChoice
+    );
+
     //determinar en qué casos gana y pierde y sumar puntos en player1 y player2:
     if (playerChoice === rivalChoice) {
       winner = "tie";
@@ -262,10 +269,6 @@ class Game extends HTMLElement {
         currentState.player1 += 1;
       }
     }
-
-    //actualizar el resultado en el currentState:
-    currentState.result =
-      winner === myName ? "win" : winner === "tie" ? "tie" : "lose";
     state.setState(currentState);
 
     //enviar resultados al server:

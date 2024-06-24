@@ -192,7 +192,15 @@ class Instructions extends HTMLElement {
       state.gamePush();
       const currentState = state.getState();
       const currentGame = currentState.rtdbData.currentGame;
-
+      //asignar nombre del rival en currentState si soy el owner:
+      let rivalName = "";
+      Object.keys(currentGame).forEach((key) => {
+        if (key !== "owner" && typeof currentGame[key] === "object") {
+          rivalName = key;
+        }
+      });
+      currentState.rivalName = rivalName;
+      //
       let allPlayersReady = true;
       Object.keys(currentGame).forEach((key) => {
         if (key !== "owner" && !currentGame[key].start) {
@@ -201,11 +209,9 @@ class Instructions extends HTMLElement {
       });
 
       if (allPlayersReady) {
-        console.log("ok");
-        // Aquí puedes añadir la lógica para avanzar a la siguiente página
         Router.go("/game");
       } else {
-        console.log("Esperando que ambos jugadores estén listos...");
+        console.log("Esperando que ambos jugadores estén listos");
       }
     });
     this.shadow.appendChild(style);
