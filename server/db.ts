@@ -2,6 +2,9 @@
 
 import * as admin from "firebase-admin";
 import * as path from "path"; //módulo path de Node.js para trabajar con rutas de archivos y directorios
+import * as dotenv from "dotenv";
+
+dotenv.config();
 
 //accedo a mi key:
 const serviceAccount = require(path.resolve(
@@ -12,7 +15,7 @@ const serviceAccount = require(path.resolve(
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
-  databaseURL: "https://ppt-online-4275c-default-rtdb.firebaseio.com", // URL base de datos rtdb
+  databaseURL: process.env.DATABASE_URL, // URL base de datos rtdb
 });
 
 const firestore = admin.firestore();

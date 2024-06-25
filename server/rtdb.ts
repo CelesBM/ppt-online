@@ -3,10 +3,11 @@ import { getDatabase, ref, onValue } from "firebase/database";
 import * as dotenv from "dotenv";
 
 dotenv.config();
+console.log("DATABASE_URL from dotenv:", process.env.DATABASE_URL);
 
 const firebaseConfig = {
-  apiKey: "5pFzdfw1vrIgj8mR8Ywh8XdGF2OQUVFofOFWQFb7",
-  databaseURL: "https://ppt-online-4275c-default-rtdb.firebaseio.com",
+  apiKey: process.env.APIKEY,
+  databaseURL: process.env.DATABASE_URL,
   authDomain: "ppt-online.firebaseapp.com",
   projectId: "ppt-online-4275c",
 };
