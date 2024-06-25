@@ -111,7 +111,7 @@ app.post("/createRoom", (req, res) => {
     });
 });
 //Endpoint para unirse a una sala existente.
-app.post("/joinRoom", (req, res) => {
+/*app.post("/joinRoom", (req, res) => {
   const userId = req.body.userId;
   const roomId = req.body.roomId;
   const roomName = "currentGame";
@@ -164,7 +164,7 @@ app.post("/joinRoom", (req, res) => {
         });
       }
     });
-});
+});*/
 
 //Endpoint para obtener sala por id.
 
