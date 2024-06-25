@@ -70,7 +70,6 @@ const state = {
             // Mostrar mensaje de usuario existente
             callback ? callback(err.message) : false;
           } else {
-            // Otro tipo de error, podrías manejarlo aquí si es necesario
             callback ? callback(err.message) : false;
           }
         });
@@ -110,7 +109,6 @@ const state = {
             // Mostrar mensaje de usuario no existente
             callback ? callback(err.message) : false;
           } else {
-            // Otro tipo de error, podrías manejarlo aquí si es necesario
             callback ? callback(err.message) : false;
           }
         });
@@ -151,14 +149,13 @@ const state = {
     onValue(roomRef, (snapShot) => {
       const data = snapShot.val();
       currentState.rtdbData = data;
-      //currentState.rtdbData = data[currentState.rtdbId];
       console.log("State desde el listen room", currentState);
       state.setState(currentState);
     });
   },
 
   //VER SI LO NECESITO.
-  joinRoom(roomId) {
+  /* joinRoom(roomId) {
     const currentState = this.getState();
     const userId = currentState.userId;
 
@@ -189,7 +186,7 @@ const state = {
       .catch((error) => {
         console.error("Error al unirse como rival:", error);
       });
-  },
+  },*/
 
   //Acceder a una sala existente
   getRoom(callback?) {

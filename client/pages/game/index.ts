@@ -204,16 +204,16 @@ class Game extends HTMLElement {
 
     const currentGame = currentState.rtdbData.currentGame;
     const myName = currentState.name;
-    let rivalChoice = ""; // Variable para almacenar la elección del rival
+    let rivalChoice = "";
 
     for (const playerName in currentGame) {
       if (Object.hasOwnProperty.call(currentGame, playerName)) {
         const playerData = currentGame[playerName]; //jugador actual y rival
         const playerChoice = playerData.choice; //mi eleccion y la del rival
 
-        //en caso de que el nombre del player no sea el mío:
+        //En caso de que el nombre del player no sea el mío:
         if (playerName !== myName) {
-          rivalChoice = playerChoice; // Almacena la elección del rival
+          rivalChoice = playerChoice; //almacena la elección del rival
           console.log("Rival:", playerName, "Elección:", rivalChoice);
         }
       }
@@ -239,15 +239,7 @@ class Game extends HTMLElement {
     const myName = currentState.name;
     let winner = "";
 
-    console.log(
-      "elecciones desde showPlayerWinner: ",
-      "mi eleccion:",
-      playerChoice,
-      "eleccion rival",
-      rivalChoice
-    );
-
-    //determinar en qué casos gana y pierde y sumar puntos en player1 y player2:
+    //Determinar en qué casos gana y pierde y sumar puntos en player1 y player2:
     if (playerChoice === rivalChoice) {
       winner = "tie";
     } else if (
@@ -269,12 +261,13 @@ class Game extends HTMLElement {
         currentState.player1 += 1;
       }
     }
+
     state.setState(currentState);
 
-    //enviar resultados al server:
+    //Enviar resultados al server:
     state.updateRoom();
 
-    //redirigir según resultado de partida:
+    //Redirigir según resultado de partida:
     setTimeout(() => {
       if (winner === currentState.ownerName) {
         Router.go("/win");

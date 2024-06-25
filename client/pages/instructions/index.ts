@@ -192,7 +192,8 @@ class Instructions extends HTMLElement {
       state.gamePush();
       const currentState = state.getState();
       const currentGame = currentState.rtdbData.currentGame;
-      //asignar nombre del rival en currentState si soy el owner:
+
+      //Asignar nombre del rival en currentState si soy el owner:
       let rivalName = "";
       Object.keys(currentGame).forEach((key) => {
         if (key !== "owner" && typeof currentGame[key] === "object") {
@@ -200,7 +201,8 @@ class Instructions extends HTMLElement {
         }
       });
       currentState.rivalName = rivalName;
-      //
+
+      //Iniciar si todos estan ready:
       let allPlayersReady = true;
       Object.keys(currentGame).forEach((key) => {
         if (key !== "owner" && !currentGame[key].start) {
