@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "license": "MIT",
   "dependencies": {
+    "@parcel/watcher": "^2.4.1",
     "@types/node": "^20.12.12",
     "@vaadin/router": "^1.7.5",
     "cors": "^2.8.5",
