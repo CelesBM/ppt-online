@@ -1,7 +1,7 @@
 import { ref, onValue } from "firebase/database";
 import { rtdb } from "../server/rtdb";
 
-const API_BASE_URL = "http://localhost:3005";
+const API_BASE_URL = "http://localhost:3021";
 
 const state = {
   data: {
