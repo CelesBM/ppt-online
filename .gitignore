@@ -3,7 +3,4 @@ dist
 node_modules
 .env
 yarn.lock
-./server/serviceAccountKey.json
-/server/serviceAccountKey.json
 *.js
-serviceAccountKey.json
