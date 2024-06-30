@@ -1,7 +1,7 @@
 import { ref, onValue } from "firebase/database";
 import { rtdb } from "../server/rtdb";
 
-const API_BASE_URL = "https://ppt-online-qs4b.onrender.com/";
+const API_BASE_URL = "https://ppt-online-qs4b.onrender.com";
 
 const state = {
   data: {
