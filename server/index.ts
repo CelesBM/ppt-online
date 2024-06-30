@@ -4,8 +4,7 @@ import * as path from "path";
 import { firestore, rtdb } from "./db";
 import { v4 as uuidv4 } from "uuid";
 
-const PORT = 3021;
-//const PORT = process.env.PORT || 3005;
+const PORT = process.env.PORT || 3021;
 const app = express();
 app.use(express.json());
 app.use(cors());
