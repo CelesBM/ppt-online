@@ -206,15 +206,19 @@ class Game extends HTMLElement {
     const myName = currentState.name;
     let rivalChoice = "";
 
+    console.log("Current Game:", currentGame); // Verifica qué contiene currentGame
+    console.log("My Name:", myName); // Verifica el nombre del jugador actual
+
     for (const playerName in currentGame) {
       if (Object.hasOwnProperty.call(currentGame, playerName)) {
         const playerData = currentGame[playerName]; //jugador actual y rival
         const playerChoice = playerData.choice; //mi eleccion y la del rival
+        console.log("Player Data for", playerName, ":", playerData); // Verifica los datos del jugador
 
         //En caso de que el nombre del player no sea el mío:
         if (playerName !== myName) {
           rivalChoice = playerChoice; //almacena la elección del rival
-          console.log("Rival:", playerName, "Elección:", rivalChoice);
+          console.log("Player Choice for", playerName, ":", playerChoice); // Verifica la elección del jugador
         }
       }
     }
